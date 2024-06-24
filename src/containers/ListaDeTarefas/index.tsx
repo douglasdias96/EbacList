@@ -1,26 +1,61 @@
 import { useSelector } from 'react-redux'
 import Tarefa from '../../Components/Tarefa'
-import { Container } from './styles'
+import { MainContainer, Titulo } from '../../Styles/'
 
 import { RootReducer } from '../../Components/store'
+import tarefas from '../../Components/store/reducers/tarefas'
 
 const ListaDeTarefas = () => {
   const { itens } = useSelector((state: RootReducer) => state.tarefas)
-  const { termo } = useSelector((state: RootReducer) => state.filtro)
+  const { termo, criterio, valor } = useSelector(
+    (state: RootReducer) => state.filtro
+  )
 
   const filtraTarefas = () => {
-    return itens.filter(
-      (item) =>
-        item.titulo.toLocaleLowerCase().search(termo.toLocaleLowerCase()) >= 0
-    )
+    let tarefasFiltradas = itens
+    if (termo !== undefined) {
+      tarefasFiltradas = tarefasFiltradas.filter(
+        (item) =>
+          item.titulo.toLocaleLowerCase().search(termo.toLocaleLowerCase()) >= 0
+      )
+
+      if (criterio === 'prioridade') {
+        tarefasFiltradas = tarefasFiltradas.filter(
+          (item) => item.prioridade === valor
+        )
+      } else if (criterio === 'status') {
+        tarefasFiltradas = tarefasFiltradas.filter(
+          (item) => item.status === valor
+        )
+      }
+
+      return tarefasFiltradas
+    } else {
+      return itens
+    }
   }
+
+  const exibeResultado = (quantidade: number) => {
+    let mensagem = ''
+    const complementacao =
+      termo !== undefined && termo.length > 0 ? `e "${termo}"` : ''
+
+    if (criterio === 'todas') {
+      mensagem = `${quantidade} tarefa(s) encontrada(s) como todas ${complementacao} `
+    } else {
+      mensagem = `${quantidade} tarefa(s) encontrada(s) como:"${`${criterio} = ${valor}`}"${complementacao}`
+    }
+
+    return mensagem
+  }
+
+  const tarefas = filtraTarefas()
+  const mensagem = exibeResultado(tarefas.length)
   return (
-    <Container>
-      <p>
-        2 tarefas marcadas com: &quot;categoria&ldquo; e &quot;{termo}&ldquo;
-      </p>
+    <MainContainer>
+      <Titulo as="p">{mensagem}</Titulo>
       <ul>
-        {filtraTarefas().map((t) => (
+        {tarefas.map((t) => (
           <li key={t.titulo}>
             <Tarefa
               id={t.id}
@@ -32,7 +67,7 @@ const ListaDeTarefas = () => {
           </li>
         ))}
       </ul>
-    </Container>
+    </MainContainer>
   )
 }
 

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import * as enums from '../../../Utils/enums/tarefas'
 
 type FiltroState = {
-  termo: string
+  termo?: string
   criterio: 'prioridade' | 'status' | 'todas'
   valor?: enums.Prioridade | enums.Status
 }
@@ -18,10 +18,14 @@ const filtroSlice = createSlice({
   reducers: {
     alteraTermo: (state, action: PayloadAction<string>) => {
       state.termo = action.payload
+    },
+    alterarFiltro: (state, action: PayloadAction<FiltroState>) => {
+      state.criterio = action.payload.criterio
+      state.valor = action.payload.valor
     }
   }
 })
 
-export const { alteraTermo } = filtroSlice.actions
+export const { alteraTermo, alterarFiltro } = filtroSlice.actions
 
 export default filtroSlice.reducer
